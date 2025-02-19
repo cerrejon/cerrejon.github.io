@@ -14,42 +14,51 @@ class CustomValidationButton extends HTMLElement {
     validateData() {
         Application.showBusyIndicator();
 
+        // Acceder al widget de área de texto
         const textArea = Application.getWidget(this.getAttribute("messageArea"));
-        textArea.setValue("");
+        textArea.setValue("");  // Limpiar el área de texto
 
-        const table = Application.getWidget(this.getAttribute("tableAlias"));
-        const rd = table.getDataSource().getResultSet();
+        // Acceder al control de la tabla de SAPUI5
+        const table = sap.ui.getCore().byId(this.getAttribute("tableAlias"));
+        
+        // Obtener los datos del modelo asociado a la tabla
+        const oModel = table.getModel(); // Obtener el modelo de la tabla
+        const aData = oModel.getData(); // Obtener los datos del modelo (puede ser un array de objetos)
 
         let errores = 0;
-        
-        for (let i = 0; i < rd.length - 1; i++) {
+
+        // Iterar sobre las filas de los datos y hacer las validaciones
+        for (let i = 0; i < aData.length - 1; i++) {
             if (
-                rd[i][Alias.MeasureDimension].description === "Libre Disposición" &&
-                rd[i + 1][Alias.MeasureDimension].description === "Techo Gasto" &&
-                Number.parseFloat(rd[i][Alias.MeasureDimension].rawValue) >
-                Number.parseFloat(rd[i + 1][Alias.MeasureDimension].rawValue)
+                aData[i].MeasureDimension.description === "Libre Disposición" &&
+                aData[i + 1].MeasureDimension.description === "Techo Gasto" &&
+                Number.parseFloat(aData[i].MeasureDimension.rawValue) >
+                Number.parseFloat(aData[i + 1].MeasureDimension.rawValue)
             ) {
                 errores++;
                 textArea.setValue(
                     textArea.getValue() +
                     "\n" +
-                    "Ecónomica y Funcional donde se ha excedido el techo de gasto: " +
-                    rd[i]["economica"].id +
+                    "Económica y Funcional donde se ha excedido el techo de gasto: " +
+                    aData[i]["economica"].id +
                     " " +
-                    rd[i]["funcional"].id
+                    aData[i]["funcional"].id
                 );
             }
         }
 
+        // Acceder a los botones y el popup
         const successButton = Application.getWidget(this.getAttribute("buttonSuccess"));
         const errorButton = Application.getWidget(this.getAttribute("buttonError"));
         const popup = Application.getWidget(this.getAttribute("popup"));
 
         if (errores === 0) {
+            // Si no hay errores, mostrar el mensaje de éxito
             errorButton.setVisible(false);
             successButton.setVisible(true);
             Application.showMessage(ApplicationMessageType.Success, "No se han encontrado errores");
         } else {
+            // Si hay errores, mostrar el popup con los errores
             successButton.setVisible(false);
             errorButton.setVisible(true);
             popup.open();
@@ -59,4 +68,5 @@ class CustomValidationButton extends HTMLElement {
     }
 }
 
+// Definir el widget personalizado
 customElements.define("custom-validation-button", CustomValidationButton);
