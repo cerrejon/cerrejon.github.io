@@ -12,51 +12,31 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        Application.showBusyIndicator();
+     // Obtener la tabla del DOM
+let table = document.querySelector("table");
 
-        const textArea = Application.getWidget(this.getAttribute("messageArea"));
-        textArea.setValue("");
+if (table) {
+    let rows = table.querySelectorAll("tbody tr"); // Seleccionar las filas del cuerpo de la tabla
 
-        const table = Application.getWidget(this.getAttribute("tableAlias"));
-        const rd = table.getDataSource().getResultSet();
+    rows.forEach(row => {
+        let cells = row.querySelectorAll("td"); // Obtener todas las celdas de la fila
 
-        let errores = 0;
-        
-        for (let i = 0; i < rd.length - 1; i++) {
-            if (
-                rd[i][Alias.MeasureDimension].description === "Libre Disposición" &&
-                rd[i + 1][Alias.MeasureDimension].description === "Techo Gasto" &&
-                Number.parseFloat(rd[i][Alias.MeasureDimension].rawValue) >
-                Number.parseFloat(rd[i + 1][Alias.MeasureDimension].rawValue)
-            ) {
-                errores++;
-                textArea.setValue(
-                    textArea.getValue() +
-                    "\n" +
-                    "Ecónomica y Funcional donde se ha excedido el techo de gasto: " +
-                    rd[i]["economica"].id +
-                    " " +
-                    rd[i]["funcional"].id
-                );
+        // Asegurar que las celdas tengan los valores correctos
+        if (cells.length >= 4) { 
+            let libreDisposicion = parseFloat(cells[2].innerText.replace(",", ".")) || 0; // Ajusta el índice si la columna cambia
+            let techoGasto = parseFloat(cells[3].innerText.replace(",", ".")) || 0; 
+
+            if (libreDisposicion > techoGasto) {
+                let economica = cells[0].innerText.trim(); // Ajusta el índice si la columna cambia
+                let funcional = cells[1].innerText.trim(); 
+
+              
             }
         }
+    });
 
-        const successButton = Application.getWidget(this.getAttribute("buttonSuccess"));
-        const errorButton = Application.getWidget(this.getAttribute("buttonError"));
-        const popup = Application.getWidget(this.getAttribute("popup"));
-
-        if (errores === 0) {
-            errorButton.setVisible(false);
-            successButton.setVisible(true);
-            Application.showMessage(ApplicationMessageType.Success, "No se han encontrado errores");
-        } else {
-            successButton.setVisible(false);
-            errorButton.setVisible(true);
-            popup.open();
-        }
-
-        Application.hideBusyIndicator();
     }
 }
 
+// Definir el widget personalizado
 customElements.define("custom-validation-button", CustomValidationButton);
