@@ -12,7 +12,7 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        const table = document.querySelector("__table3");
+        const table = __table3;
 
         if (table) {
             // Obtiene todas las celdas de la tabla
