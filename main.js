@@ -12,59 +12,29 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        Application.showBusyIndicator();
+     // Obtener la tabla del DOM
+let table = document.querySelector("table");
 
-        // Acceder al widget de área de texto
-        const textArea = Application.getWidget(this.getAttribute("messageArea"));
-        textArea.setValue("");  // Limpiar el área de texto
+if (table) {
+    let rows = table.querySelectorAll("tbody tr"); // Seleccionar las filas del cuerpo de la tabla
 
-        // Acceder al control de la tabla de SAPUI5
-        const table = sap.ui.getCore().byId(this.getAttribute("tableAlias"));
-        
-        // Obtener los datos del modelo asociado a la tabla
-        const oModel = table.getModel(); // Obtener el modelo de la tabla
-        const aData = oModel.getData(); // Obtener los datos del modelo (puede ser un array de objetos)
+    rows.forEach(row => {
+        let cells = row.querySelectorAll("td"); // Obtener todas las celdas de la fila
 
-        let errores = 0;
+        // Asegurar que las celdas tengan los valores correctos
+        if (cells.length >= 4) { 
+            let libreDisposicion = parseFloat(cells[2].innerText.replace(",", ".")) || 0; // Ajusta el índice si la columna cambia
+            let techoGasto = parseFloat(cells[3].innerText.replace(",", ".")) || 0; 
 
-        // Iterar sobre las filas de los datos y hacer las validaciones
-        for (let i = 0; i < aData.length - 1; i++) {
-            if (
-                aData[i].MeasureDimension.description === "Libre Disposición" &&
-                aData[i + 1].MeasureDimension.description === "Techo Gasto" &&
-                Number.parseFloat(aData[i].MeasureDimension.rawValue) >
-                Number.parseFloat(aData[i + 1].MeasureDimension.rawValue)
-            ) {
-                errores++;
-                textArea.setValue(
-                    textArea.getValue() +
-                    "\n" +
-                    "Económica y Funcional donde se ha excedido el techo de gasto: " +
-                    aData[i]["economica"].id +
-                    " " +
-                    aData[i]["funcional"].id
-                );
+            if (libreDisposicion > techoGasto) {
+                let economica = cells[0].innerText.trim(); // Ajusta el índice si la columna cambia
+                let funcional = cells[1].innerText.trim(); 
+
+              
             }
         }
+    });
 
-        // Acceder a los botones y el popup
-        const successButton = Application.getWidget(this.getAttribute("buttonSuccess"));
-        const errorButton = Application.getWidget(this.getAttribute("buttonError"));
-        const popup = Application.getWidget(this.getAttribute("popup"));
-
-        if (errores === 0) {
-            // Si no hay errores, mostrar el mensaje de éxito
-            errorButton.setVisible(false);
-            successButton.setVisible(true);
-            Application.showMessage(ApplicationMessageType.Success, "No se han encontrado errores");
-        } else {
-            // Si hay errores, mostrar el popup con los errores
-            successButton.setVisible(false);
-            errorButton.setVisible(true);
-            popup.open();
-        }
-
-        Application.hideBusyIndicator();
     }
 }
 
