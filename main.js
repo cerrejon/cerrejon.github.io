@@ -12,30 +12,37 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-     // Obtener la tabla del DOM
-let table = document.querySelector("__table3");
+        const table = document.querySelector("__table3");
 
-if (table) {
-    let rows = table.querySelectorAll(".tableCell"); // Seleccionar las filas del cuerpo de la tabla
-
-    rows.forEach(row => {
-        let cells = row.querySelectorAll("td"); // Obtener todas las celdas de la fila
-
-        // Asegurar que las celdas tengan los valores correctos
-        if (cells.length >= 4) { 
-            let libreDisposicion = parseFloat(cells[2].innerText.replace(",", ".")) || 0; // Ajusta el índice si la columna cambia
-            let techoGasto = parseFloat(cells[3].innerText.replace(",", ".")) || 0; 
-
-            if (libreDisposicion > techoGasto) {
-                let economica = cells[0].innerText.trim(); // Ajusta el índice si la columna cambia
-                let funcional = cells[1].innerText.trim(); 
-
-              
-            }
+        if (table) {
+            // Obtiene todas las celdas de la tabla
+            const cells = Array.from(table.querySelectorAll(".tableCell"));
+        
+            // Agrupar celdas en filas basándonos en su índice de fila
+            const rows = {};
+        
+            cells.forEach(cell => {
+                // Obtiene el índice de la fila basado en el atributo 'aria-rowindex'
+                const rowIndex = cell.getAttribute("aria-rowindex");
+                
+                if (rowIndex) {
+                    if (!rows[rowIndex]) {
+                        rows[rowIndex] = [];
+                    }
+                    // Extrae el texto de la celda
+                    const textValue = cell.querySelector(".textValue")?.innerText.trim() || "Sin texto";
+                    rows[rowIndex].push(textValue);
+                }
+            });
+        
+            // Convertimos el objeto en un array ordenado y lo mostramos
+            const tableData = Object.keys(rows).sort((a, b) => a - b).map(key => rows[key]);
+            
+            console.log("Datos extraídos por filas:", tableData);
+        } else {
+            console.log("No se encontró la tabla.");
         }
-    });
 
-    }
 }
 }
 
