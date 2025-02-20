@@ -13,10 +13,10 @@ class CustomValidationButton extends HTMLElement {
 
     validateData() {
      // Obtener la tabla del DOM
-let table = document.querySelector("table");
+let table = document.querySelector("__table3");
 
 if (table) {
-    let rows = table.querySelectorAll("tbody tr"); // Seleccionar las filas del cuerpo de la tabla
+    let rows = table.querySelectorAll(".tableCell"); // Seleccionar las filas del cuerpo de la tabla
 
     rows.forEach(row => {
         let cells = row.querySelectorAll("td"); // Obtener todas las celdas de la fila
