@@ -12,7 +12,7 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        var table = sap.ui.getCore().byId("__table3"); // Obtener la tabla en UI5
+        var table = __table3;
 
         if (!table) {
             console.log("No se encontró la tabla.");
@@ -21,19 +21,20 @@ class CustomValidationButton extends HTMLElement {
 
         const cells = Array.from(table.querySelectorAll(".tableCell"));
         const rows = {};
- 
-         // Agrupar celdas en filas
-         items.forEach(item => {
-            const cells = item.getCells(); // Obtener celdas de cada fila
-            if (cells.length >= 4) {
-                rows.push([
-                    cells[0].getText(), // Económica
-                    cells[1].getText(), // Funcional
-                    this.parseNumber(cells[2].getText()), // Libre disposición
-                    this.parseNumber(cells[3].getText()) // Techo de gasto
-                ]);
-            }
-        });
+  
+          // Agrupar celdas en filas
+          cells.forEach(cell => {
+              const rowIndex = cell.getAttribute("aria-rowindex");
+              if (rowIndex) {
+                  if (!rows[rowIndex]) {
+                      rows[rowIndex] = [];
+                  }
+                  const textValue = cell.querySelector(".textValue")?.innerText.trim() || "";
+                  rows[rowIndex].push(textValue);
+              }
+          });
+  
+         const tableData = Object.keys(rows).sort((a, b) => a - b).map(key => rows[key]);
          console.log("Datos extraídos por filas:", tableData);
  
          let errores = 0;
@@ -42,7 +43,7 @@ class CustomValidationButton extends HTMLElement {
          // Recorrer las filas y validar
          for (let i = 3; i < tableData.length; i++) {
             const [economica, funcional, libre, techo] = rows[i];
-
+            if(libre==="–"){libre=0;}
             if (libre > techo) {
                 errores++;
                 mensajes += `\nEconómica y Funcional donde se ha excedido el techo de gasto: ${economica} ${funcional}`;
