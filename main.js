@@ -11,13 +11,8 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        const table = document.querySelector("__table5");
-
-        if (!table) {
-            console.log("No se encontró la tabla.");
-            return;
-        }
-
+        const table = "__table5";
+        
         const cells = Array.from(table.querySelectorAll(".tableCell"));
         const rows = {};
 
