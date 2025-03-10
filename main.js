@@ -19,28 +19,29 @@ class CustomValidationButton extends HTMLElement {
             return;
         }
 
-        const rows = [];
-        const items = table.getItems(); // Obtener filas de la tabla
-
-        items.forEach(item => {
-            const cells = item.getCells(); // Obtener celdas de cada fila
-            if (cells.length >= 4) {
-                rows.push([
-                    cells[0].getText(), // Económica
-                    cells[1].getText(), // Funcional
-                    this.parseNumber(cells[2].getText()), // Libre disposición
-                    this.parseNumber(cells[3].getText()) // Techo de gasto
-                ]);
-            }
-        });
-
-        console.log("Datos extraídos por filas:", rows);
-
-        let errores = 0;
-        let mensajes = "";
-
-        // Validación de los datos
-        for (let i = 3; i < rows.length; i++) {
+        const cells = Array.from(table.querySelectorAll(".tableCell"));
+        const rows = {};
+ 
+         // Agrupar celdas en filas
+         cells.forEach(cell => {
+             const rowIndex = cell.getAttribute("aria-rowindex");
+             if (rowIndex) {
+                 if (!rows[rowIndex]) {
+                     rows[rowIndex] = [];
+                 }
+                 const textValue = cell.querySelector(".textValue")?.innerText.trim() || "";
+                 rows[rowIndex].push(textValue);
+             }
+         });
+ 
+         const tableData = Object.keys(rows).sort((a, b) => a - b).map(key => rows[key]);
+         console.log("Datos extraídos por filas:", tableData);
+ 
+         let errores = 0;
+         let mensajes = "";
+ 
+         // Recorrer las filas y validar
+         for (let i = 3; i < tableData.length; i++) {
             const [economica, funcional, libre, techo] = rows[i];
 
             if (libre > techo) {
