@@ -12,7 +12,9 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        var table = document.querySelector('[id^="__table"]').id;
+        var tableId = document.querySelector('[id^="__table"]').id;
+        var table = document.querySelector(`#${tableId}`);  // Usando template literal
+        console.log(table); 
 
         if (!table) {
             console.log("No se encontró la tabla.");
