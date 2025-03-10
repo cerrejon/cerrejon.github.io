@@ -11,8 +11,13 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        var table = "__table5";
-        
+        var table = document.querySelector("#__table5"); // Asegurar que la tabla es encontrada
+
+        if (!table) {
+            console.error("No se encontró la tabla con ID '__table5'");
+            return;
+        }
+
         const cells = Array.from(table.querySelectorAll(".tableCell"));
         const rows = {};
 
@@ -49,16 +54,80 @@ class CustomValidationButton extends HTMLElement {
         }
 
         if (errores > 0) {
-            console.log("Errores encontrados:", mensajes);
-            alert(`Se han encontrado ${errores} errores:\n${mensajes}`);
+            this.showPopup(mensajes);
         } else {
-            alert("Validación completada sin errores.");
+            this.showMessageToast("Validación completada sin errores.", "Success");
         }
     }
 
     parseNumber(value) {
         if (!value || value === "–") return 0; // Si no hay valor, devolver 0
         return Number.parseFloat(value.replace(".", "").replace(",", "."));
+    }
+
+    showPopup(message) {
+        const dialog = document.createElement("div");
+        dialog.innerHTML = `
+            <style>
+                .overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .popup {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+                    text-align: center;
+                }
+                .popup textarea {
+                    width: 100%;
+                    height: 100px;
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                }
+                .popup button {
+                    margin-top: 10px;
+                    padding: 10px;
+                    cursor: pointer;
+                }
+            </style>
+            <div class="overlay">
+                <div class="popup">
+                    <h3 style="color: red;">Económicas Erróneas</h3>
+                    <textarea readonly>${message}</textarea>
+                    <br>
+                    <button onclick="document.body.removeChild(this.closest('.overlay'))">Cerrar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(dialog);
+    }
+
+    showMessageToast(message, type) {
+        const toast = document.createElement("div");
+        toast.innerText = message;
+        toast.style.position = "fixed";
+        toast.style.bottom = "20px";
+        toast.style.left = "50%";
+        toast.style.transform = "translateX(-50%)";
+        toast.style.backgroundColor = type === "Success" ? "green" : "red";
+        toast.style.color = "white";
+        toast.style.padding = "10px 20px";
+        toast.style.borderRadius = "5px";
+        toast.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 3000);
     }
 }
 
