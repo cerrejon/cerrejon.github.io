@@ -42,7 +42,7 @@ class CustomValidationButton extends HTMLElement {
  
          // Recorrer las filas y validar
          for (let i = 3; i < tableData.length; i++) {
-            const [economica, funcional, libre, techo] = rows[i];
+            var [economica, funcional, libre, techo] = rows[i];
             if(libre==="–"){libre=0;}
             if (libre > techo) {
                 errores++;
