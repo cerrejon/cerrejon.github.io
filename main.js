@@ -3,18 +3,12 @@ class CustomValidationButton extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
 
-        // Crear el botón en UI5
-        this.button = new sap.m.Button({
-            text: "Validar Datos",
-            press: () => this.validateData()
-        });
+        // Crear el botón
+        this.button = document.createElement("button");
+        this.button.innerText = "Validar Datos";
+        this.button.addEventListener("click", () => this.validateData());
 
-        // Crear un contenedor UI5 para renderizar el botón dentro del shadow DOM
-        this.ui5Container = document.createElement("div");
-        this.shadowRoot.appendChild(this.ui5Container);
-
-        // Renderizar el botón en el contenedor
-        this.button.placeAt(this.ui5Container);
+        this.shadowRoot.appendChild(this.button);
     }
 
     validateData() {
