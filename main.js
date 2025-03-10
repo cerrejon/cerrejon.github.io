@@ -3,7 +3,6 @@ class CustomValidationButton extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
 
-        // Crear el botón
         this.button = document.createElement("button");
         this.button.innerText = "Validar Datos";
         this.button.addEventListener("click", () => this.validateData());
@@ -12,39 +11,60 @@ class CustomValidationButton extends HTMLElement {
     }
 
     validateData() {
-        const table = __table5;
+        const table = document.querySelector("__table5");
 
-        if (table) {
-            // Obtiene todas las celdas de la tabla
-            const cells = Array.from(table.querySelectorAll(".tableCell"));
-        
-            // Agrupar celdas en filas basándonos en su índice de fila
-            const rows = {};
-        
-            cells.forEach(cell => {
-                // Obtiene el índice de la fila basado en el atributo 'aria-rowindex'
-                const rowIndex = cell.getAttribute("aria-rowindex");
-                
-                if (rowIndex) {
-                    if (!rows[rowIndex]) {
-                        rows[rowIndex] = [];
-                    }
-                    // Extrae el texto de la celda
-                    const textValue = cell.querySelector(".textValue")?.innerText.trim() || "Sin texto";
-                    rows[rowIndex].push(textValue);
-                }
-            });
-        
-            // Convertimos el objeto en un array ordenado y lo mostramos
-            const tableData = Object.keys(rows).sort((a, b) => a - b).map(key => rows[key]);
-            
-            console.log("Datos extraídos por filas:", tableData);
-        } else {
+        if (!table) {
             console.log("No se encontró la tabla.");
+            return;
         }
 
-}
+        const cells = Array.from(table.querySelectorAll(".tableCell"));
+        const rows = {};
+
+        // Agrupar celdas en filas
+        cells.forEach(cell => {
+            const rowIndex = cell.getAttribute("aria-rowindex");
+            if (rowIndex) {
+                if (!rows[rowIndex]) {
+                    rows[rowIndex] = [];
+                }
+                const textValue = cell.querySelector(".textValue")?.innerText.trim() || "";
+                rows[rowIndex].push(textValue);
+            }
+        });
+
+        const tableData = Object.keys(rows).sort((a, b) => a - b).map(key => rows[key]);
+        console.log("Datos extraídos por filas:", tableData);
+
+        let errores = 0;
+        let mensajes = "";
+
+        // Recorrer las filas y validar
+        for (let i = 3; i < tableData.length; i++) {
+            const [economica, funcional, libreDisposicion, techoGasto] = tableData[i];
+
+            // Convertir los valores en números, manejar valores vacíos o con guiones
+            const libre = this.parseNumber(libreDisposicion);
+            const techo = this.parseNumber(techoGasto);
+
+            if (libre > techo) {
+                errores++;
+                mensajes += `\nEconómica y Funcional donde se ha excedido el techo de gasto: ${economica} ${funcional}`;
+            }
+        }
+
+        if (errores > 0) {
+            console.log("Errores encontrados:", mensajes);
+            alert(`Se han encontrado ${errores} errores:\n${mensajes}`);
+        } else {
+            alert("Validación completada sin errores.");
+        }
+    }
+
+    parseNumber(value) {
+        if (!value || value === "–") return 0; // Si no hay valor, devolver 0
+        return Number.parseFloat(value.replace(".", "").replace(",", "."));
+    }
 }
 
-// Definir el widget personalizado
 customElements.define("custom-validation-button", CustomValidationButton);
